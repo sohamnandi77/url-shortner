@@ -1,0 +1,10 @@
+enum UserRole {
+    ADMIN
+    MEMBER
+    GUEST
+}
+
+enum Plan {
+    FREE
+    PAID
+}

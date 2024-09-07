@@ -1,41 +1,52 @@
 import NextAuth from "next-auth";
 
-import { AppMiddleware } from "@/middlewares";
-import { API_AUTH_PREFIX, AUTH_ROUTES, PUBLIC_ROUTES } from "@/routes";
+import {
+  API_HOSTNAMES,
+  APP_HOSTNAMES,
+  DEFAULT_REDIRECTS,
+} from "@/constants/main";
+import { env } from "@/env";
+import { parse } from "@/lib/parse";
+import { isValidUrl } from "@/lib/url";
+import {
+  ApiMiddleware,
+  AppMiddleware,
+  CreateLinkMiddleware,
+  LinkMiddleware,
+} from "@/middlewares";
 import { providers } from "@/server/auth";
+import { type NextRequest, NextResponse } from "next/server";
 
 const { auth } = NextAuth(providers);
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+export default auth((req: NextRequest) => {
+  const { domain, key, fullKey } = parse(req);
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(API_AUTH_PREFIX);
-  const isPublicRoute = PUBLIC_ROUTES.has(nextUrl.pathname);
-  const isAuthRoute = AUTH_ROUTES.has(nextUrl.pathname);
-
-  if (isApiAuthRoute) {
-    return;
-  }
-
-  if (isAuthRoute) {
+  // for App
+  if (APP_HOSTNAMES.has(domain)) {
     return AppMiddleware(req);
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
-    let callbackUrl = nextUrl.pathname;
-    if (nextUrl.search) {
-      callbackUrl += nextUrl.search;
-    }
+  // for API
+  if (API_HOSTNAMES.has(domain)) {
+    return ApiMiddleware(req);
+  }
 
-    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
-
-    return Response.redirect(
-      new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl),
+  // default redirects for app domain
+  if (
+    domain === env.NEXT_PUBLIC_APP_DOMAIN &&
+    DEFAULT_REDIRECTS[key as keyof typeof DEFAULT_REDIRECTS]
+  ) {
+    return NextResponse.redirect(
+      DEFAULT_REDIRECTS[key as keyof typeof DEFAULT_REDIRECTS],
     );
   }
 
-  return;
+  if (isValidUrl(fullKey)) {
+    return CreateLinkMiddleware(req);
+  }
+
+  return LinkMiddleware(req);
 });
 
 // Optionally, don't invoke Middleware on some paths

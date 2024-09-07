@@ -1,0 +1,52 @@
+model Link {
+    id                  String    @id @default(cuid())
+    keyword             String // not making it unique for now as combination of domain & keyword will be unique
+    originalLink        String
+    archived            Boolean   @default(false) // whether the link is archived or not
+    expiresAt           DateTime? // when the link expires
+    expiredLinkByDate   String? // URL to redirect the user to when the link is expired by date
+    expiredLinkByClicks String? // URL to redirect the user to when the link is expired by clicks
+    password            String? // password to access the link
+
+    // Open Graph tags
+    proxy         Boolean @default(false) // Proxy to use custom OG tags – if false, will use OG tags from original link
+    ogTitle       String? // OG title for the link 
+    ogDescription String? // OG description for the link
+    ogImage       String? // OG image for the link
+    ogVideo       String? // OG video for the link
+
+    // UTM parameters
+    utmSource   String? // UTM source for the link
+    utmMedium   String? // UTM medium for the link
+    utmCampaign String? // UTM campaign for the link
+    utmTerm     String? // UTM term for the link
+    utmContent  String? // UTM content for the link
+
+    // Custom device targeting
+    iosTargeting     String? // custom link for iOS devices
+    androidTargeting String? // custom link for Android devices
+    windowsTargeting String? // custom link for Windows devices
+    geoTargeting     Json? // custom link for specific countries
+
+    // Category
+    category LinkCategory[]
+
+    // User Info
+    user      User?    @relation(fields: [userId], references: [id]) // user who created the link
+    userId    String // user who created the link
+    createdAt DateTime @default(now()) // when the link was created
+    updatedAt DateTime @updatedAt // when the link was updated
+    createdBy String // who created the link
+    updatedBy String // who updated the link
+
+    // Link Analytics
+    showAnalytics Boolean         @default(false)
+    clicks        Int             @default(0) // number of clicks
+    uniqueClicks  Int             @default(0) // number of unique clicks
+    lastClicked   DateTime? // when the link was last clicked
+    analytics     LinkAnalytics[]
+
+    // Workspace Info
+    workspace   Workspace? @relation(fields: [workspaceId], references: [id], onUpdate: Cascade, onDelete: Cascade) // workspace where the link belongs to
+    workspaceId String? // workspace where the link belongs to
+}

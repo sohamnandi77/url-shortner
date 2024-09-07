@@ -1,19 +1,14 @@
-generator client {
-    provider = "prisma-client-js"
-}
-
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
-// Necessary for Next auth
-
-enum UserRole {
-    ADMIN
-    MEMBER
-    GUEST
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["prismaSchemaFolder"]
 }
+
+// Necessary for Next auth
 
 model User {
     id                    String                 @id @default(cuid())
@@ -26,9 +21,11 @@ model User {
     sessions              Session[]
     isTwoFactorEnabled    Boolean                @default(false)
     twoFactorConfirmation TwoFactorConfirmation?
-    role                  UserRole               @default(MEMBER)
     createdAt             DateTime               @default(now())
     updatedAt             DateTime               @updatedAt
+    links                 Link[]
+    workspaces            WorkspaceUsers[]
+    defaultWorkspace      String?
 }
 
 model Account {
@@ -37,13 +34,13 @@ model Account {
     type                     String
     provider                 String
     providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
+    refresh_token            String?
+    access_token             String?
     expires_at               Int?
     refresh_token_expires_in Int?
     token_type               String?
     scope                    String?
-    id_token                 String? // @db.Text
+    id_token                 String?
     session_state            String?
     createdAt                DateTime @default(now())
     updatedAt                DateTime @updatedAt

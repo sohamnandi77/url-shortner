@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
 export const parse = (req: NextRequest) => {
-  let domain = req.headers.get("host") as string;
- 
-  let path = req.nextUrl.pathname;
+  const domain = req.headers.get("host")!;
+
+  const path = req.nextUrl.pathname;
 
   // fullPath is the full URL path (along with search params)
   const searchParams = req.nextUrl.searchParams.toString();
