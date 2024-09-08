@@ -1,12 +1,16 @@
 import { APP_DOMAIN_ROUTE } from "@/constants/main";
 import { getDefaultWorkspaceByEmail } from "@/data/workspace";
 import { parse } from "@/lib/parse";
+import { type RequestAuthUser } from "@/types/middleware";
 import { type NextRequest, NextResponse } from "next/server";
 
-export default async function NewLinkMiddleware(req: NextRequest, user) {
+export default async function NewLinkMiddleware(
+  req: NextRequest,
+  user: RequestAuthUser,
+) {
   const { fullPath } = parse(req);
 
-  const defaultWorkspace = await getDefaultWorkspaceByEmail(user);
+  const defaultWorkspace = await getDefaultWorkspaceByEmail(user?.email);
 
   const searchParams = new URL(fullPath, APP_DOMAIN_ROUTE).searchParams;
 

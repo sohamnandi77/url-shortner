@@ -62,6 +62,6 @@ export const config = {
      * 6  /trpc (trpc routes)
      * 7. Static files (e.g. /favicon.ico, /sitemap.xml, /robots.txt, etc.)
      */
-    "/((?!_next/|_proxy/|trpc|_static|_vercel|[\\w-]+\\.\\w+).*)",
+    "/((?!api/|_next/|_proxy/|_static|_vercel|[\\w-]+\\.\\w+).*)",
   ],
 };

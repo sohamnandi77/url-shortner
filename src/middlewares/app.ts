@@ -3,15 +3,19 @@ import { NextResponse, type NextRequest } from "next/server";
 import { parse } from "@/lib/parse";
 import NewLinkMiddleware from "@/middlewares/new-link";
 import WorkspacesMiddleware from "@/middlewares/workspace";
+import { type RequestAuthUser } from "@/types/middleware";
 
 interface CustomNextRequest extends NextRequest {
-  auth?: unknown;
+  auth?: {
+    user: RequestAuthUser;
+  };
 }
 
 export default async function AppMiddleware(req: CustomNextRequest) {
   const { path, fullPath } = parse(req);
-  const user = req?.auth;
-  const isLoggedIn = !!user;
+  const auth = req?.auth;
+  const isLoggedIn = !!auth;
+  const user = auth?.user;
 
   // if the user is not logged in and the path isn't /login or /register, redirect to /login
   if (!isLoggedIn && path !== "/login" && path !== "/register") {
@@ -23,7 +27,7 @@ export default async function AppMiddleware(req: CustomNextRequest) {
     );
   }
 
-  if (isLoggedIn) {
+  if (isLoggedIn && user) {
     // /new is a special path that creates a new link (or workspace if the user doesn't have one yet)
     if (path === "/new") {
       return NewLinkMiddleware(req, user);

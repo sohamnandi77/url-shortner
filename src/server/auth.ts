@@ -8,14 +8,14 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
 import { getAccountByUserId } from "@/data/account";
-import {
-  deleteTwoFactorConfirmation,
-  getTwoFactorConfirmationByUserId,
-} from "@/data/two-factor-confirmation";
+import { createDefaultWorkspace } from "@/data/create-default-workspsce";
+
 import { getUserByEmail, getUserById } from "@/data/user";
 import { env } from "@/env";
+import { generateWorkspaceSlug } from "@/lib/generate-workspace-slug";
 import { LoginSchema } from "@/schema/auth";
 import { db } from "@/server/db";
+import { nanoid } from "nanoid";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -88,23 +88,26 @@ export const authOptions: NextAuthConfig = {
       if (!user.email) return false; // Prevent sign in without email or blacklisted email
 
       // Allow OAuth without email verification
-      if (account?.provider !== "credentials") return true;
+      if (account?.provider !== "credentials") {
+        // create a default workspace for the user
+        return true;
+      }
 
-      const existingUser = await getUserById(user.id);
+      // const existingUser = await getUserById(user.id);
 
       // Prevent sign in without email verification
       // if (!existingUser?.emailVerified) return false;
 
-      if (existingUser?.isTwoFactorEnabled) {
-        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
-          existingUser.id,
-        );
+      // if (existingUser?.isTwoFactorEnabled) {
+      //   const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+      //     existingUser.id,
+      //   );
 
-        if (!twoFactorConfirmation) return false;
+      //   if (!twoFactorConfirmation) return false;
 
-        // Delete two factor confirmation for next sign in
-        await deleteTwoFactorConfirmation(twoFactorConfirmation.id);
-      }
+      //   // Delete two factor confirmation for next sign in
+      //   await deleteTwoFactorConfirmation(twoFactorConfirmation.id);
+      // }
 
       return true;
     },
@@ -136,6 +139,14 @@ export const authOptions: NextAuthConfig = {
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
       return token;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      const slug = generateWorkspaceSlug(user?.id);
+      const inviteCode = nanoid(24);
+      // create a default workspace for the user
+      await createDefaultWorkspace(user?.id, slug, inviteCode);
     },
   },
   adapter: PrismaAdapter(db),

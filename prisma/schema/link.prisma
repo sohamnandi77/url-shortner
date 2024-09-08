@@ -1,12 +1,16 @@
 model Link {
     id                  String    @id @default(cuid())
+    domain              String // domain of the link
     keyword             String // not making it unique for now as combination of domain & keyword will be unique
     originalLink        String
     archived            Boolean   @default(false) // whether the link is archived or not
     expiresAt           DateTime? // when the link expires
     expiredLinkByDate   String? // URL to redirect the user to when the link is expired by date
     expiredLinkByClicks String? // URL to redirect the user to when the link is expired by clicks
+    expiredLink         String? // URL to redirect the user to when the link is expired
     password            String? // password to access the link
+    banned              Boolean   @default(false) // whether the link is banned or not
+    shouldIndex         Boolean   @default(false) // whether the link should be indexed by search engines or not
 
     // Open Graph tags
     proxy         Boolean @default(false) // Proxy to use custom OG tags – if false, will use OG tags from original link
