@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { parse } from "@/lib/parse";
 import NewLinkMiddleware from "@/middlewares/new-link";
 import WorkspacesMiddleware from "@/middlewares/workspace";
-import { type RequestAuthUser } from "@/types/middleware";
+import { type RequestAuthUser } from "@/types";
 
 interface CustomNextRequest extends NextRequest {
   auth?: {

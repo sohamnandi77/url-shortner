@@ -11,6 +11,7 @@ import { isValidUrl } from "@/lib/url";
 import {
   ApiMiddleware,
   AppMiddleware,
+  AxiomMiddleware,
   CreateLinkMiddleware,
   LinkMiddleware,
 } from "@/middlewares";
@@ -19,8 +20,10 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const { auth } = NextAuth(providers);
 
-export default auth((req: NextRequest) => {
+export default auth(async (req: NextRequest) => {
   const { domain, key, fullKey } = parse(req);
+
+  await AxiomMiddleware(req);
 
   // for App
   if (APP_HOSTNAMES.has(domain)) {

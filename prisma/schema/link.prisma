@@ -4,13 +4,14 @@ model Link {
     keyword             String // not making it unique for now as combination of domain & keyword will be unique
     originalLink        String
     archived            Boolean   @default(false) // whether the link is archived or not
-    expiresAt           DateTime? // when the link expires
-    expiredLinkByDate   String? // URL to redirect the user to when the link is expired by date
-    expiredLinkByClicks String? // URL to redirect the user to when the link is expired by clicks
+    expiredLinkByDate   DateTime? // when the link expires by Date
+    expiredLinkByClicks String? // when the link expires by clicks
     expiredLink         String? // URL to redirect the user to when the link is expired
     password            String? // password to access the link
     banned              Boolean   @default(false) // whether the link is banned or not
     shouldIndex         Boolean   @default(false) // whether the link should be indexed by search engines or not
+    comments            String? // comments on the link
+    cloaked             Boolean   @default(false) // whether the link is cloaked or not
 
     // Open Graph tags
     proxy         Boolean @default(false) // Proxy to use custom OG tags – if false, will use OG tags from original link
@@ -29,19 +30,18 @@ model Link {
     // Custom device targeting
     iosTargeting     String? // custom link for iOS devices
     androidTargeting String? // custom link for Android devices
-    windowsTargeting String? // custom link for Windows devices
     geoTargeting     Json? // custom link for specific countries
 
-    // Category
-    category LinkCategory[]
+    // Tags
+    tags LinkTag[]
 
     // User Info
     user      User?    @relation(fields: [userId], references: [id]) // user who created the link
     userId    String // user who created the link
     createdAt DateTime @default(now()) // when the link was created
     updatedAt DateTime @updatedAt // when the link was updated
-    createdBy String // who created the link
-    updatedBy String // who updated the link
+    createdBy String? // who created the link
+    updatedBy String? // who updated the link
 
     // Link Analytics
     showAnalytics Boolean         @default(false)
@@ -53,4 +53,15 @@ model Link {
     // Workspace Info
     workspace   Workspace? @relation(fields: [workspaceId], references: [id], onUpdate: Cascade, onDelete: Cascade) // workspace where the link belongs to
     workspaceId String? // workspace where the link belongs to
+
+    @@unique([domain, keyword])
+    @@index(workspaceId)
+    @@index(domain)
+    @@index(proxy)
+    @@index(password)
+    @@index(archived)
+    @@index(createdAt(sort: Desc))
+    @@index(clicks(sort: Desc))
+    @@index(lastClicked)
+    @@index(userId)
 }

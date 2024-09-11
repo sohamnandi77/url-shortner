@@ -12,9 +12,19 @@ model Workspace {
     createdBy     String // who created the workspace
     updatedBy     String // who updated the workspace
 
-    users      WorkspaceUsers[]
-    links      Link[]
-    categories LinkCategory[]
+    usage        Int @default(0)
+    usageLimit   Int @default(1000)
+    linksUsage   Int @default(0)
+    linksLimit   Int @default(25)
+    domainsLimit Int @default(3)
+    tagsLimit    Int @default(5)
+    usersLimit   Int @default(1)
+
+    users            WorkspaceUsers[]
+    links            Link[]
+    ProjectInvite    ProjectInvite[]
+    tags             Tag[]
+    restrictedTokens RestrictedToken[]
 }
 
 model WorkspaceUsers {
@@ -26,4 +36,19 @@ model WorkspaceUsers {
     workspaceId String?
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @updatedAt
+
+    @@unique([userId, workspaceId])
+    @@index([workspaceId])
+}
+
+model ProjectInvite {
+    email       String
+    expires     DateTime
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId String
+    role        UserRole  @default(MEMBER)
+    createdAt   DateTime  @default(now())
+
+    @@unique([email, workspaceId])
+    @@index([workspaceId])
 }

@@ -6,5 +6,5 @@ enum UserRole {
 
 enum Plan {
     FREE
-    PAID
+    PRO
 }

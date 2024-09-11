@@ -47,6 +47,8 @@
     "nanoid": "^5.0.7",
     "next": "^14.2.4",
     "next-auth": "5.0.0-beta.20",
+    "next-axiom": "^1.5.1",
+    "punycode": "^2.3.1",
     "react": "^18.3.1",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",
@@ -56,12 +58,14 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.1",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zod-error": "^1.5.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/eslint": "^8.56.10",
     "@types/node": "^22.5.2",
+    "@types/punycode": "^2.1.4",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@types/ws": "^8.5.12",
@@ -77,5 +81,5 @@
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.9.1"
+  "packageManager": "pnpm@9.10.0"
 }

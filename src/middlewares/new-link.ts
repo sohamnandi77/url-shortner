@@ -1,7 +1,7 @@
 import { APP_DOMAIN_ROUTE } from "@/constants/main";
 import { getDefaultWorkspaceByEmail } from "@/data/workspace";
 import { parse } from "@/lib/parse";
-import { type RequestAuthUser } from "@/types/middleware";
+import { type RequestAuthUser } from "@/types";
 import { type NextRequest, NextResponse } from "next/server";
 
 export default async function NewLinkMiddleware(

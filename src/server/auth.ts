@@ -1,5 +1,4 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth, { type DefaultSession } from "next-auth";
@@ -7,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
-import { getAccountByUserId } from "@/data/account";
 import { createDefaultWorkspace } from "@/data/create-default-workspsce";
 
 import { getUserByEmail, getUserById } from "@/data/user";
@@ -26,9 +24,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      role: UserRole;
-      isTwoFactorEnabled: boolean;
-      isOAuth: boolean;
+      defaultWorkspace: string;
     } & DefaultSession["user"];
   }
 }
@@ -114,11 +110,9 @@ export const authOptions: NextAuthConfig = {
     async session({ token, session }) {
       if (session.user) {
         if (token.sub) session.user.id = token.sub;
-        if (token.role) session.user.role = token.role as UserRole;
-        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
         session.user.name = token.name;
         session.user.email = token.email!;
-        session.user.isOAuth = token.isOAuth as boolean;
+        session.user.defaultWorkspace = token.defaultWorkspace as string;
       }
 
       return session;
@@ -130,13 +124,9 @@ export const authOptions: NextAuthConfig = {
 
       if (!existingUser) return token;
 
-      const existingAccount = await getAccountByUserId(existingUser.id);
-
-      token.isOAuth = !!existingAccount;
       token.name = existingUser.name;
       token.email = existingUser.email;
-      // token.role = existingUser.role;
-      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+      token.defaultWorkspace = existingUser.defaultWorkspace;
 
       return token;
     },
@@ -152,6 +142,7 @@ export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...providers,
+  debug: env.NODE_ENV === "development",
 };
 
 export const {

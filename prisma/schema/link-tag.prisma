@@ -1,0 +1,30 @@
+model Tag {
+    id          String    @id @default(cuid())
+    name        String
+    color       String    @default("blue")
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+    workspaceId String
+    links       LinkTag[]
+
+    @@unique([name, workspaceId])
+    @@index(workspaceId)
+}
+
+model LinkTag {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String
+    updatedBy String
+    link      Link     @relation(fields: [linkId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+    linkId    String
+    tag       Tag      @relation(fields: [tagId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+    tagId     String
+
+    @@unique([linkId, tagId])
+    @@index(linkId)
+    @@index(tagId)
+}
