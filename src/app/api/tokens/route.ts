@@ -12,9 +12,16 @@ import { NextResponse } from "next/server";
 // GET /api/tokens - get all tokens for a workspace
 export const GET = withWorkspace(
   async ({ workspace }) => {
+    if (!workspace) {
+      throw new ApiError({
+        code: "NOT_FOUND",
+        message: "Workspace not found.",
+      });
+    }
+
     const tokens = await db.restrictedToken.findMany({
       where: {
-        workspaceId: workspace?.id,
+        workspaceId: workspace.id,
       },
       select: {
         id: true,
@@ -23,7 +30,6 @@ export const GET = withWorkspace(
         lastUsed: true,
         createdAt: true,
         updatedAt: true,
-
         user: {
           select: {
             id: true,
@@ -45,6 +51,19 @@ export const GET = withWorkspace(
 // POST /api/tokens – create a new token for a workspace
 export const POST = withWorkspace(
   async ({ req, session, workspace }) => {
+    if (!session?.user) {
+      throw new ApiError({
+        code: "UNAUTHORIZED",
+        message: "Unauthorized: Login required.",
+      });
+    }
+    if (!workspace) {
+      throw new ApiError({
+        code: "NOT_FOUND",
+        message: "Workspace not found.",
+      });
+    }
+
     const { name, scopes } = createTokenSchema.parse(
       await parseRequestBody(req),
     );

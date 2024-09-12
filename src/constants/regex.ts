@@ -5,3 +5,5 @@ export const DOMAIN_REGEX = new RegExp(
 export const KEY_REGEX = new RegExp(
   /^[0-9A-Za-z_\u0080-\uFFFF\/\-\p{Emoji}]*$/u,
 );
+
+export const SLUG_REGEX = new RegExp(/^[a-zA-Z0-9\-]+$/);

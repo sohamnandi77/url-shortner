@@ -188,7 +188,7 @@ export const withWorkspace = (
         })) as WorkspaceWithUsers;
 
         // workspace doesn't exist
-        if (!workspace?.users) {
+        if (!workspace?.users?.length) {
           throw new ApiError({
             code: "NOT_FOUND",
             message: "Workspace not found.",

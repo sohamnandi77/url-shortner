@@ -26,7 +26,6 @@ export const updateTokenSchema = createTokenSchema
 export const tokenSchema = z.object({
   id: z.string(),
   name: z.string(),
-  partialKey: z.string(),
   scopes: z
     .string()
     .nullable()
@@ -38,6 +37,5 @@ export const tokenSchema = z.object({
     id: z.string(),
     name: z.string().nullable(),
     image: z.string().nullable(),
-    isMachine: z.boolean(),
   }),
 });

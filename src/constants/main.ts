@@ -53,3 +53,7 @@ export const UTM_TAGS = [
 ] as const;
 
 export const TOKEN_PREFIX = "lw_";
+
+export const FREE_WORKSPACES_LIMIT = 2;
+
+export const MAX_LOGIN_ATTEMPTS = 10;

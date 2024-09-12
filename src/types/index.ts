@@ -34,3 +34,15 @@ export type ProcessedLinkProps = Omit<NewLinkProps, ProcessedLinkOverrides> &
     createdAt?: Date;
     id?: string;
   };
+
+export type UserProps = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified?: string;
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  defaultWorkspace?: string;
+  provider: string | null;
+};
