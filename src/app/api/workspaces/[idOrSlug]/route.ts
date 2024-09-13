@@ -42,6 +42,15 @@ export const PATCH = withWorkspace(
       await req.json(),
     );
 
+    if (slug === workspace.slug || name === workspace.name) {
+      return NextResponse.json(
+        WorkspaceSchema.parse({
+          ...workspace,
+          id: `ws_${workspace.id}`,
+        }),
+      );
+    }
+
     try {
       const response = await db.workspace.update({
         where: {
@@ -98,8 +107,6 @@ export const PATCH = withWorkspace(
     requiredPermissions: ["WORKSPACES_UPDATE"],
   },
 );
-
-export const PUT = PATCH;
 
 // DELETE /api/workspaces/[idOrSlug] – delete a specific project
 export const DELETE = withWorkspace(

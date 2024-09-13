@@ -30,3 +30,5 @@ export const APP_ROUTES = new Set([
  * Routes that start with this prefix are used for API authentication purposes
  */
 export const API_AUTH_PREFIX = "/api";
+
+export const DEFAULT_LOGIN_REDIRECT = "/login";

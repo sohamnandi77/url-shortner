@@ -37,6 +37,13 @@ export const GET = withSession(async ({ session }) => {
 
 // POST /api/workspaces - create a new workspace
 export const POST = withSession(async ({ req, session }) => {
+  if (!session.user.id) {
+    throw new ApiError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to create a workspace.",
+    });
+  }
+
   const { name, slug } = await createWorkspaceSchema.parseAsync(
     await req.json(),
   );
@@ -119,7 +126,7 @@ export const POST = withSession(async ({ req, session }) => {
       if ("code" in error && error.code === "P2002") {
         throw new ApiError({
           code: "CONFLICT",
-          message: "A link with this externalId already exists.",
+          message: "A workspace with this slug already exists.",
         });
       }
 

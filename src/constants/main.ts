@@ -54,6 +54,8 @@ export const UTM_TAGS = [
 
 export const TOKEN_PREFIX = "lw_";
 
-export const FREE_WORKSPACES_LIMIT = 2;
+export const PASSWORD_RESET_TOKEN_EXPIRY = 1 * 60 * 60; // 1 hour
+
+export const FREE_WORKSPACES_LIMIT = 5;
 
 export const MAX_LOGIN_ATTEMPTS = 10;

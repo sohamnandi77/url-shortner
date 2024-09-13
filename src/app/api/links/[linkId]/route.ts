@@ -60,10 +60,17 @@ export const GET = withWorkspace(
 // PATCH /api/links/[linkId] – update a link
 export const PATCH = withWorkspace(
   async ({ req, headers, workspace, params, session }) => {
-    if (!workspace || !session) {
+    if (!workspace) {
       throw new ApiError({
         code: "NOT_FOUND",
         message: "Workspace not found",
+      });
+    }
+
+    if (!session) {
+      throw new ApiError({
+        code: "UNAUTHORIZED",
+        message: "You must be logged in to update a link",
       });
     }
 

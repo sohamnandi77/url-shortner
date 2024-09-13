@@ -5,7 +5,7 @@ datasource db {
 
 generator client {
     provider        = "prisma-client-js"
-    previewFeatures = ["prismaSchemaFolder", "driverAdapters"]
+    previewFeatures = ["prismaSchemaFolder", "driverAdapters", "omitApi"]
 }
 
 // Necessary for Next auth

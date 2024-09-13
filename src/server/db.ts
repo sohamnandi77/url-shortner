@@ -15,6 +15,10 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaNeon(pool);
 
 export const db: PrismaClient =
-  globalThis.prisma ?? new PrismaClient({ adapter, log: ["query"] });
+  globalThis.prisma ??
+  new PrismaClient({
+    adapter,
+    log: ["query"],
+  });
 
 if (env.NODE_ENV !== "production") globalThis.prisma = db;

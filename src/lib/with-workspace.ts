@@ -67,13 +67,18 @@ export const withWorkspace = (
         }
 
         let workspaceSlug: string | undefined;
+        let workspaceId: string | undefined;
         let permissions: PermissionAction[] = [];
         let token;
         let session: Session | null;
 
         const isRestrictedToken = apiKey?.startsWith(TOKEN_PREFIX);
 
-        const idOrSlug = params?.slug ?? searchParams.workspaceSlug;
+        const idOrSlug =
+          params?.idOrSlug ??
+          searchParams.workspaceId ??
+          params?.slug ??
+          searchParams.workspaceSlug;
 
         // if there's no slug and it's not a restricted token
         // For restricted tokens, we find the workspaceId from the token
@@ -95,7 +100,11 @@ export const withWorkspace = (
         }
 
         if (idOrSlug) {
-          workspaceSlug = idOrSlug;
+          if (idOrSlug.startsWith("ws_")) {
+            workspaceId = idOrSlug.replace("ws_", "");
+          } else {
+            workspaceSlug = idOrSlug;
+          }
         }
 
         // Either
@@ -120,6 +129,9 @@ export const withWorkspace = (
                     email: true,
                     image: true,
                     defaultWorkspace: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    lockedAt: true,
                   },
                 },
               },
@@ -158,6 +170,10 @@ export const withWorkspace = (
               email: token.user.email ?? "",
               image: token.user.image ?? "",
               defaultWorkspace: token.user.defaultWorkspace ?? "",
+              provider: "credentials",
+              createdAt: token.user.createdAt,
+              updatedAt: token.user.updatedAt,
+              lockedAt: token.user.lockedAt ?? undefined,
             },
             expires: token.expires?.toDateString() ?? "",
           };
@@ -173,6 +189,7 @@ export const withWorkspace = (
 
         const workspace = (await prisma?.workspace.findUnique({
           where: {
+            id: workspaceId ?? undefined,
             slug: workspaceSlug ?? undefined,
           },
           include: {
@@ -206,7 +223,12 @@ export const withWorkspace = (
           });
         }
 
-        // TODO: beta feature checks
+        if (!session || !workspace) {
+          throw new ApiError({
+            code: "UNAUTHORIZED",
+            message: "Unauthorized: Login required.",
+          });
+        }
 
         return await handler({
           req,

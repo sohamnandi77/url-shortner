@@ -1,0 +1,730 @@
+{
+  "info": {
+    "_postman_id": "7918a431-a87a-4f26-abd4-c726756be753",
+    "name": "url-shortner",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "13321455"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"token\": \"4240fd54e483022a2db3aca31b58501a88513b4309a16599eb72\",\n    \"password\":\"Qwerty123\",\n    \"confirmPassword\":\"Qwerty123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/reset-password/",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "reset-password", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "If Account Exist",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"acme@acc.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/account-exists",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "account-exists"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "me",
+      "item": [
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/me",
+              "host": ["{{BASE_URL}}"],
+              "path": ["me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "password",
+          "item": [
+            {
+              "name": "Update User Password",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"currentPassword\": \"Qwerty123\",\n    \"newPassword\":\"NewQwerty123\",\n    \"confirmPassword\": \"NewQwerty123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/user/password?workspaceSlug={{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["user", "password"],
+                  "query": [
+                    {
+                      "key": "workspaceSlug",
+                      "value": "{{WORKSPACE_SLUG}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "set-password",
+          "item": [
+            {
+              "name": "Add User Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/user/set-password",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["user", "set-password"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get Specific User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/user",
+              "host": ["{{BASE_URL}}"],
+              "path": ["user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Specific User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/user",
+              "host": ["{{BASE_URL}}"],
+              "path": ["user"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/user",
+              "host": ["{{BASE_URL}}"],
+              "path": ["user"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "token",
+      "item": [
+        {
+          "name": "[id]",
+          "item": [
+            {
+              "name": "Get Specific Token",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/tokens/{{TOKEN_ID}}?workspaceSlug={{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["tokens", "{{TOKEN_ID}}"],
+                  "query": [
+                    {
+                      "key": "workspaceSlug",
+                      "value": "{{WORKSPACE_SLUG}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Specific Token",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Updated Name\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/tokens/{{TOKEN_ID}}?workspaceSlug={{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["tokens", "{{TOKEN_ID}}"],
+                  "query": [
+                    {
+                      "key": "workspaceSlug",
+                      "value": "{{WORKSPACE_SLUG}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Specific Token",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/tokens/{{TOKEN_ID}}?workspaceSlug={{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["tokens", "{{TOKEN_ID}}"],
+                  "query": [
+                    {
+                      "key": "workspaceSlug",
+                      "value": "{{WORKSPACE_SLUG}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Create Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New API Key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/tokens?workspaceSlug={{WORKSPACE_SLUG}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["tokens"],
+              "query": [
+                {
+                  "key": "workspaceSlug",
+                  "value": "{{WORKSPACE_SLUG}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tokens",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/tokens?workspaceSlug={{WORKSPACE_SLUG}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["tokens"],
+              "query": [
+                {
+                  "key": "workspaceSlug",
+                  "value": "{{WORKSPACE_SLUG}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "links",
+      "item": [
+        {
+          "name": "Create Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"originalLink\": \"https://google.com\",\n    \"keyword\": \"google\",\n    \"domain\": \"localhost:3000\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/links?workspaceSlug={{WORKSPACE_SLUG}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["links"],
+              "query": [
+                {
+                  "key": "workspaceSlug",
+                  "value": "{{WORKSPACE_SLUG}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Links",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/links?workspaceSlug={{WORKSPACE_SLUG}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["links"],
+              "query": [
+                {
+                  "key": "workspaceSlug",
+                  "value": "{{WORKSPACE_SLUG}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "workspaces",
+      "item": [
+        {
+          "name": "[idOrSlug]",
+          "item": [
+            {
+              "name": "Get Specific Workspace By Id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Specific Workspace By Slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_SLUG}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Specific Workspace By Id",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Personal2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Specific Workspace By Slug",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Personal3\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Workspace By Id",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Workspace By Slug",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{API_KEY}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_SLUG}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["workspaces", "{{WORKSPACE_SLUG}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get Workspaces",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Workspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New Workspace 2\",\n    \"slug\": \"new-workspace\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

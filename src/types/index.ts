@@ -39,10 +39,11 @@ export type UserProps = {
   id: string;
   name: string;
   email: string;
-  emailVerified?: string;
+  emailVerified: Date;
   image?: string;
   createdAt: Date;
   updatedAt: Date;
+  lockedAt?: Date;
   defaultWorkspace?: string;
   provider: string | null;
 };

@@ -1,3 +1,4 @@
+import { ApiError } from "@/lib/errors";
 import { truncate } from "@/lib/truncate";
 import { getParamsFromURL } from "@/lib/url";
 import { db } from "@/server/db";
@@ -10,10 +11,17 @@ export async function updateLink({
   userId,
   updatedLink,
 }: {
-  userId: string;
+  userId?: string;
   updatedLink: ProcessedLinkProps &
     Pick<Link, "id" | "clicks" | "lastClicked" | "updatedAt">;
 }) {
+  if (!userId) {
+    throw new ApiError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to update a link",
+    });
+  }
+
   const {
     id,
     keyword,

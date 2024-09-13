@@ -1,3 +1,4 @@
+import { TOKEN_PREFIX } from "@/constants/main";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { type Session } from "next-auth";
@@ -26,6 +27,7 @@ export const withSession = (handler: WithSessionHandler) =>
     ) => {
       try {
         let session: Session | null;
+        let token;
 
         const authorizationHeader = req.headers.get("Authorization");
         if (authorizationHeader) {
@@ -37,50 +39,75 @@ export const withSession = (handler: WithSessionHandler) =>
             });
           }
           const apiKey = authorizationHeader.replace("Bearer ", "");
+          const isRestrictedToken = apiKey?.startsWith(TOKEN_PREFIX);
 
           const hashedKey = await hashToken(apiKey);
-
-          const user = await db.user.findFirst({
-            where: {
-              tokens: {
-                some: {
-                  hashedKey,
+          if (isRestrictedToken) {
+            token = await db.restrictedToken.findUnique({
+              where: {
+                hashedKey,
+              },
+              select: {
+                ...(isRestrictedToken && {
+                  scopes: true,
+                  rateLimit: true,
+                  workspaceId: true,
+                  expires: true,
+                }),
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                    defaultWorkspace: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    lockedAt: true,
+                  },
                 },
               },
-            },
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-              defaultWorkspace: true,
-            },
-          });
-          if (!user) {
+            });
+          }
+
+          if (!token?.user) {
             throw new ApiError({
               code: "UNAUTHORIZED",
               message: "Unauthorized: Invalid API key.",
             });
           }
 
-          await db.token.update({
-            where: {
-              hashedKey,
-            },
-            data: {
-              lastUsed: new Date(),
-            },
-          });
+          if (token.expires && token.expires < new Date()) {
+            throw new ApiError({
+              code: "UNAUTHORIZED",
+              message: "Unauthorized: Access token expired.",
+            });
+          }
+
+          if (isRestrictedToken) {
+            await db.restrictedToken.update({
+              where: {
+                hashedKey,
+              },
+              data: {
+                lastUsed: new Date(),
+              },
+            });
+          }
 
           session = {
             user: {
-              id: user.id,
-              name: user.name ?? "",
-              email: user.email ?? "",
-              image: user.image ?? "",
-              defaultWorkspace: user.defaultWorkspace ?? "",
+              id: token.user.id,
+              name: token.user.name ?? "",
+              email: token.user.email ?? "",
+              image: token.user.image ?? "",
+              defaultWorkspace: token.user.defaultWorkspace ?? "",
+              provider: "credentials",
+              createdAt: token.user.createdAt,
+              updatedAt: token.user.updatedAt,
+              lockedAt: token.user.lockedAt ?? undefined,
             },
-            expires: new Date()?.toDateString() ?? "",
+            expires: token.expires?.toDateString() ?? "",
           };
         } else {
           session = await auth();

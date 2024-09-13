@@ -1,7 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcryptjs";
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, User } from "next-auth";
 import NextAuth, { type DefaultSession } from "next-auth";
+import { type AdapterUser } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -10,10 +10,18 @@ import { createDefaultWorkspace } from "@/data/create-default-workspsce";
 
 import { getUserByEmail, getUserById } from "@/data/user";
 import { env } from "@/env";
+import {
+  exceededLoginAttemptsThreshold,
+  incrementLoginAttempts,
+  resetLoginAttempts,
+} from "@/lib/auth/lock-account";
+import { validatePassword } from "@/lib/auth/password";
 import { generateWorkspaceSlug } from "@/lib/generate-workspace-slug";
 import { LoginSchema } from "@/schema/auth";
 import { db } from "@/server/db";
+import { type UserProps } from "@/types";
 import { nanoid } from "nanoid";
+import { type JWT } from "next-auth/jwt";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -23,9 +31,21 @@ import { nanoid } from "nanoid";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string;
-      defaultWorkspace: string;
+      id?: string;
+      lockedAt?: Date;
+      createdAt: Date;
+      updatedAt: Date;
+      defaultWorkspace?: string;
+      provider: string | null;
     } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT {
+    /** OpenID ID Token */
+    user: User | UserProps | AdapterUser;
   }
 }
 
@@ -40,10 +60,12 @@ export const providers = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     GithubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       id: "credentials",
@@ -55,17 +77,42 @@ export const providers = {
       async authorize(credentials) {
         const validatedFields = LoginSchema.safeParse(credentials);
 
-        // TODO: Add rate limiting & exceeded Login Attempts
-
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
 
           const user = await getUserByEmail(email);
           if (!user?.password) throw new Error("invalid-credentials");
 
-          const passwordsMatch = await bcrypt.compare(password, user?.password);
+          if (exceededLoginAttemptsThreshold(user)) {
+            throw new Error("exceeded-login-attempts");
+          }
 
-          if (passwordsMatch) return user;
+          const passwordMatch = await validatePassword({
+            password,
+            passwordHash: user.password,
+          });
+
+          if (!passwordMatch) {
+            const exceededLoginAttempts = exceededLoginAttemptsThreshold(
+              await incrementLoginAttempts(user),
+            );
+
+            if (exceededLoginAttempts) {
+              throw new Error("exceeded-login-attempts");
+            } else {
+              throw new Error("invalid-credentials");
+            }
+          }
+
+          // Reset invalid login attempts
+          await resetLoginAttempts(user);
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
         }
 
         throw new Error("invalid-credentials");
@@ -74,6 +121,8 @@ export const providers = {
   ],
 } satisfies NextAuthConfig;
 
+// const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL;
+
 export const authOptions: NextAuthConfig = {
   pages: {
     signIn: "/login",
@@ -81,52 +130,57 @@ export const authOptions: NextAuthConfig = {
   },
   callbacks: {
     async signIn({ user, account }) {
+      console.log({ user, account });
+
       if (!user.email) return false; // Prevent sign in without email or blacklisted email
 
-      // Allow OAuth without email verification
-      if (account?.provider !== "credentials") {
-        // create a default workspace for the user
-        return true;
+      if ("lockedAt" in user && user?.lockedAt) {
+        return false;
       }
 
-      // const existingUser = await getUserById(user.id);
-
-      // Prevent sign in without email verification
-      // if (!existingUser?.emailVerified) return false;
-
-      // if (existingUser?.isTwoFactorEnabled) {
-      //   const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
-      //     existingUser.id,
-      //   );
-
-      //   if (!twoFactorConfirmation) return false;
-
-      //   // Delete two factor confirmation for next sign in
-      //   await deleteTwoFactorConfirmation(twoFactorConfirmation.id);
-      // }
+      if (account?.provider !== "credentials") {
+        return true;
+      }
 
       return true;
     },
     async session({ token, session }) {
-      if (session.user) {
-        if (token.sub) session.user.id = token.sub;
-        session.user.name = token.name;
-        session.user.email = token.email!;
-        session.user.defaultWorkspace = token.defaultWorkspace as string;
+      if (session.user && token.user) {
+        const user = token.user as UserProps;
+        session.user = {
+          ...session.user,
+          ...user,
+          id: token.sub ?? session.user.id,
+        };
       }
 
       return session;
     },
-    async jwt({ token }) {
+    async jwt({
+      token,
+      user,
+      trigger,
+    }: {
+      token: JWT;
+      user: User | AdapterUser | UserProps;
+      trigger?: "signIn" | "update" | "signUp";
+    }) {
       if (!token.sub) return token;
 
-      const existingUser = await getUserById(token.sub);
+      if (user) {
+        token.user = user;
+      }
 
-      if (!existingUser) return token;
-
-      token.name = existingUser.name;
-      token.email = existingUser.email;
-      token.defaultWorkspace = existingUser.defaultWorkspace;
+      // refresh the user's data if they update their name / email
+      if (trigger === "update") {
+        const refreshedUser = await getUserById(token.sub);
+        if (refreshedUser) {
+          token.user = {
+            ...refreshedUser,
+            provider: "credentials",
+          } as UserProps;
+        }
+      }
 
       return token;
     },
@@ -141,6 +195,21 @@ export const authOptions: NextAuthConfig = {
   },
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
+  // cookies: {
+  //   sessionToken: {
+  //     name: `${VERCEL_DEPLOYMENT ? "__Secure-" : ""}next-auth.session-token`,
+  //     options: {
+  //       httpOnly: true,
+  //       sameSite: "lax",
+  //       path: "/",
+  //       // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
+  //       domain: VERCEL_DEPLOYMENT
+  //         ? `.${process.env.NEXT_PUBLIC_APP_DOMAIN}`
+  //         : undefined,
+  //       secure: VERCEL_DEPLOYMENT,
+  //     },
+  //   },
+  // },
   ...providers,
   debug: env.NODE_ENV === "development",
 };

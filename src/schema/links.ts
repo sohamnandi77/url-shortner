@@ -9,7 +9,7 @@ import {
   parseUrlSchemaAllowEmpty,
 } from "./utils";
 
-export const getUrlQuerySchema = z.object({
+export const UrlQuerySchema = z.object({
   url: parseUrlSchema,
 });
 
