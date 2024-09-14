@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { parse } from "@/lib/parse";
-import NewLinkMiddleware from "@/middlewares/new-link";
 import WorkspacesMiddleware from "@/middlewares/workspace";
 import { type RequestAuthUser } from "@/types";
 
@@ -29,9 +28,9 @@ export default async function AppMiddleware(req: CustomNextRequest) {
 
   if (isLoggedIn && user) {
     // /new is a special path that creates a new link (or workspace if the user doesn't have one yet)
-    if (path === "/new") {
-      return NewLinkMiddleware(req, user);
-    }
+    // if (path === "/new") {
+    //   return NewLinkMiddleware(req, user);
+    // }
 
     if (
       ["/", "/login", "/register", "/analytics", "/settings"].includes(path)

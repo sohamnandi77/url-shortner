@@ -187,7 +187,7 @@ export const withWorkspace = (
           }
         }
 
-        const workspace = (await prisma?.workspace.findUnique({
+        const workspace = (await db?.workspace.findUnique({
           where: {
             id: workspaceId ?? undefined,
             slug: workspaceSlug ?? undefined,

@@ -7,21 +7,19 @@ import {
 } from "@/constants/main";
 import { env } from "@/env";
 import { parse } from "@/lib/parse";
-import { isValidUrl } from "@/lib/url";
 import {
   ApiMiddleware,
   AppMiddleware,
   AxiomMiddleware,
-  CreateLinkMiddleware,
   LinkMiddleware,
 } from "@/middlewares";
-import { providers } from "@/server/auth";
+import { providers } from "@/server/providers";
 import { type NextRequest, NextResponse } from "next/server";
 
 const { auth } = NextAuth(providers);
 
 export default auth(async (req: NextRequest) => {
-  const { domain, key, fullKey } = parse(req);
+  const { domain, key } = parse(req);
 
   await AxiomMiddleware(req);
 
@@ -43,10 +41,6 @@ export default auth(async (req: NextRequest) => {
     return NextResponse.redirect(
       DEFAULT_REDIRECTS[key as keyof typeof DEFAULT_REDIRECTS],
     );
-  }
-
-  if (isValidUrl(fullKey)) {
-    return CreateLinkMiddleware(req);
   }
 
   return LinkMiddleware(req);

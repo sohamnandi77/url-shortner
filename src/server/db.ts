@@ -3,22 +3,21 @@ import { Pool } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 
-// Extend the global interface to include the prisma property
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-const connectionString = `${env.DATABASE_URL}`;
-
-const pool = new Pool({ connectionString });
-const adapter = new PrismaNeon(pool);
-
-export const db: PrismaClient =
-  globalThis.prisma ??
-  new PrismaClient({
+const createPrismaClient = () => {
+  const connectionString = `${env.DATABASE_URL}`;
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaNeon(pool);
+  return new PrismaClient({
     adapter,
-    log: ["query"],
+    log:
+      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
+};
 
-if (env.NODE_ENV !== "production") globalThis.prisma = db;
+const globalForPrisma = globalThis as unknown as {
+  prisma: ReturnType<typeof createPrismaClient> | undefined;
+};
+
+export const db = globalForPrisma.prisma ?? createPrismaClient();
+
+if (env.NODE_ENV !== "production") globalForPrisma.prisma = db;

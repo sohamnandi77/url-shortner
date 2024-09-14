@@ -2,26 +2,17 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { NextAuthConfig, User } from "next-auth";
 import NextAuth, { type DefaultSession } from "next-auth";
 import { type AdapterUser } from "next-auth/adapters";
-import CredentialsProvider from "next-auth/providers/credentials";
-import GithubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google";
 
 import { createDefaultWorkspace } from "@/data/create-default-workspsce";
 
-import { getUserByEmail, getUserById } from "@/data/user";
+import { getUserById } from "@/data/user";
 import { env } from "@/env";
-import {
-  exceededLoginAttemptsThreshold,
-  incrementLoginAttempts,
-  resetLoginAttempts,
-} from "@/lib/auth/lock-account";
-import { validatePassword } from "@/lib/auth/password";
 import { generateWorkspaceSlug } from "@/lib/generate-workspace-slug";
-import { LoginSchema } from "@/schema/auth";
 import { db } from "@/server/db";
 import { type UserProps } from "@/types";
 import { nanoid } from "nanoid";
 import { type JWT } from "next-auth/jwt";
+import { providers } from "./providers";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -48,78 +39,6 @@ declare module "next-auth/jwt" {
     user: User | UserProps | AdapterUser;
   }
 }
-
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-
-export const providers = {
-  providers: [
-    GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
-    GithubProvider({
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
-    CredentialsProvider({
-      id: "credentials",
-      type: "credentials",
-      credentials: {
-        email: { type: "email" },
-        password: { type: "password" },
-      },
-      async authorize(credentials) {
-        const validatedFields = LoginSchema.safeParse(credentials);
-
-        if (validatedFields.success) {
-          const { email, password } = validatedFields.data;
-
-          const user = await getUserByEmail(email);
-          if (!user?.password) throw new Error("invalid-credentials");
-
-          if (exceededLoginAttemptsThreshold(user)) {
-            throw new Error("exceeded-login-attempts");
-          }
-
-          const passwordMatch = await validatePassword({
-            password,
-            passwordHash: user.password,
-          });
-
-          if (!passwordMatch) {
-            const exceededLoginAttempts = exceededLoginAttemptsThreshold(
-              await incrementLoginAttempts(user),
-            );
-
-            if (exceededLoginAttempts) {
-              throw new Error("exceeded-login-attempts");
-            } else {
-              throw new Error("invalid-credentials");
-            }
-          }
-
-          // Reset invalid login attempts
-          await resetLoginAttempts(user);
-
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          };
-        }
-
-        throw new Error("invalid-credentials");
-      },
-    }),
-  ],
-} satisfies NextAuthConfig;
 
 // const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL;
 
