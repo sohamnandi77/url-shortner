@@ -3,7 +3,8 @@ import NextAuth from "next-auth";
 import { APP_HOSTNAMES, DEFAULT_REDIRECTS } from "@/constants/main";
 import { env } from "@/env";
 import { parse } from "@/lib/parse";
-import { AppMiddleware, LinkMiddleware } from "@/middlewares";
+import AppMiddleware from "@/middlewares/app";
+import LinkMiddleware from "@/middlewares/link";
 import { providers } from "@/server/providers";
 import { type NextRequest, NextResponse } from "next/server";
 
