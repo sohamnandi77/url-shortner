@@ -3,7 +3,7 @@ import NextAuth from "next-auth";
 import { APP_HOSTNAMES, DEFAULT_REDIRECTS } from "@/constants/main";
 import { env } from "@/env";
 import { parse } from "@/lib/parse";
-import { AppMiddleware, AxiomMiddleware, LinkMiddleware } from "@/middlewares";
+import { AppMiddleware, AxiomMiddleware } from "@/middlewares";
 import { providers } from "@/server/providers";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -34,7 +34,7 @@ export default auth(async (req: NextRequest) => {
     );
   }
 
-  return LinkMiddleware(req);
+  // return LinkMiddleware(req);
 });
 
 // Optionally, don't invoke Middleware on some paths
