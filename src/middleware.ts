@@ -1,18 +1,9 @@
 import NextAuth from "next-auth";
 
-import {
-  API_HOSTNAMES,
-  APP_HOSTNAMES,
-  DEFAULT_REDIRECTS,
-} from "@/constants/main";
+import { APP_HOSTNAMES, DEFAULT_REDIRECTS } from "@/constants/main";
 import { env } from "@/env";
 import { parse } from "@/lib/parse";
-import {
-  ApiMiddleware,
-  AppMiddleware,
-  AxiomMiddleware,
-  LinkMiddleware,
-} from "@/middlewares";
+import { AppMiddleware, AxiomMiddleware, LinkMiddleware } from "@/middlewares";
 import { providers } from "@/server/providers";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -29,9 +20,9 @@ export default auth(async (req: NextRequest) => {
   }
 
   // for API
-  if (API_HOSTNAMES.has(domain)) {
-    return ApiMiddleware(req);
-  }
+  // if (API_HOSTNAMES.has(domain)) {
+  //   return ApiMiddleware(req);
+  // }
 
   // default redirects for app domain
   if (

@@ -5,11 +5,6 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { getUserByEmail } from "@/data/user";
 import { env } from "@/env";
-import {
-  exceededLoginAttemptsThreshold,
-  incrementLoginAttempts,
-  resetLoginAttempts,
-} from "@/lib/auth/lock-account";
 import { validatePassword } from "@/lib/auth/password";
 import { LoginSchema } from "@/schema/auth";
 
@@ -47,9 +42,9 @@ export const providers = {
           const user = await getUserByEmail(email);
           if (!user?.password) throw new Error("invalid-credentials");
 
-          if (exceededLoginAttemptsThreshold(user)) {
-            throw new Error("exceeded-login-attempts");
-          }
+          // if (exceededLoginAttemptsThreshold(user)) {
+          //   throw new Error("exceeded-login-attempts");
+          // }
 
           const passwordMatch = await validatePassword({
             password,
@@ -57,19 +52,23 @@ export const providers = {
           });
 
           if (!passwordMatch) {
-            const exceededLoginAttempts = exceededLoginAttemptsThreshold(
-              await incrementLoginAttempts(user),
-            );
-
-            if (exceededLoginAttempts) {
-              throw new Error("exceeded-login-attempts");
-            } else {
-              throw new Error("invalid-credentials");
-            }
+            throw new Error("invalid-credentials");
           }
 
+          // if (!passwordMatch) {
+          // const exceededLoginAttempts = exceededLoginAttemptsThreshold(
+          //   await incrementLoginAttempts(user),
+          // );
+
+          //   if (exceededLoginAttempts) {
+          //     throw new Error("exceeded-login-attempts");
+          //   } else {
+          //     throw new Error("invalid-credentials");
+          //   }
+          // }
+
           // Reset invalid login attempts
-          await resetLoginAttempts(user);
+          // await resetLoginAttempts(user);
 
           return {
             id: user.id,
