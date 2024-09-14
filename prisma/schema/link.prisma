@@ -12,6 +12,7 @@ model Link {
     shouldIndex         Boolean   @default(false) // whether the link should be indexed by search engines or not
     comments            String? // comments on the link
     cloaked             Boolean   @default(false) // whether the link is cloaked or not
+    iframeable          Boolean   @default(false) // whether the link is iframeable or not
 
     // Open Graph tags
     proxy         Boolean @default(false) // Proxy to use custom OG tags – if false, will use OG tags from original link

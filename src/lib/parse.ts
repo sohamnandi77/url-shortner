@@ -1,8 +1,16 @@
+import { SHORT_DOMAIN } from "@/constants/main";
 import { type NextRequest } from "next/server";
 
 export const parse = (req: NextRequest) => {
-  const domain = req.headers.get("host")!;
+  let domain = req.headers.get("host")!;
+  // remove www. from domain and convert to lowercase
+  domain = domain.replace("www.", "").toLowerCase();
+  if (domain === "lk.localhost:3000" || domain.endsWith(".vercel.app")) {
+    // for local development and preview URLs
+    domain = SHORT_DOMAIN;
+  }
 
+  // path is the path of the URL (e.g. dub.sh/stats/github -> /stats/github)
   const path = req.nextUrl.pathname;
 
   // fullPath is the full URL path (along with search params)
